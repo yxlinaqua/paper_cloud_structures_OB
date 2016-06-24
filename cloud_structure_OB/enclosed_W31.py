@@ -207,75 +207,36 @@ def enclosed_stastic(image, center=None):
     return radial_prof
 
 ####################################################################  
-dirpath = r'/Users/yuxinlin/final_results_s/'
+dirpath = r'./'
 
-outpath = r'/Users/yuxinlin/texdoc/'
+outpath = r'./'
 ############################################################################
-
-#filepath1= dirpath+r'W49N_merge_NH2.fits'
-#filepath1 = r'/Users/yuxinlin/W49N_1/sed_cut2/merge_1arc/merge_1arc_2.fits'
-#filepath2= dirpath+r'W43_main_merge_NH2_power_de21.fits'
-#filepath3= dirpath+r'W43_south_merge_NH2_power_de21.fits'
 filepath1= dirpath+r'G102_N_trim_cutoff.fits'
 filepath2= dirpath+r'G103_N_trim_cutoff.fits'
 filepath3= dirpath+r'W43_main_N_trim_cutoff.fits'
 filepath4= dirpath+r'W43_south_N_trim_cutoff.fits'
 
 
-
-##hdulist1 = fits.open(filepath1)
-#hdulist1 = fits.open(filepath1)
-#hdulist1 = fits.open(filepath1)
-#hdulist1 = fits.open(filepath1)
-#hdulist5 = fits.open(filepath5)
-#hdulist6 = fits.open(filepath6)
-
-#dirpath = r'/Users/yuxinlin/W43_2/sed_cut/W43_main/derive_250_350/fill_250_350/final_fitting/sm22/final_fitting_best_res/'
-
-#filepath1= dirpath+r'NH2_7_35_45.sm10.ini.hc.asr.inter.fits'
-#hdulist1_cor = fits.open(r'/Users/yuxinlin/W49N_1/sed_cut2/derive_450/derive_250_350/fill_250_350/W49N_merge_350/faint_final.regTAN.db.fits')
-#hdulist1_cor = fits.open(r'/Users/yuxinlin/W43_2/sed_cut/W43_main/derive_250_350/fill_250_350/W43_main_merge_350/faint_final_2_reg_TAN.db.fits')
 hdulist1 = fits.open(filepath1)
 hdulist2 = fits.open(filepath2)
 hdulist3 = fits.open(filepath3)
 hdulist4 = fits.open(filepath4)
-#hdulist1_cor = fits.open(r'/Users/yuxinlin/W43_2/sed_cut/W43_south/W43_south_merge_350/faint_final_reg_TAN.db.fits')
-#hdulist1_cor = fits.open(r'/Users/yuxinlin/W31_3/sed_cut/W31_merge_350/G102.faint.reg.db.fits')
-#hdulist1_cor = fits.open(r'/Users/yuxinlin/W31_3/sed_cut/W31_merge_350/G103.faint.modi.reg.db.fits')
 ############################################################################# 
 #datarg=np.power(10,hdulist1[0].data)
 
-#data1 = (hdulist1[0].data)*1e21
 data1 = np.power(10,(hdulist1[0].data))
-
-#data1[data1<6.58*10**20/7*2] = np.nan
-#data2 = np.power(10,(hdulist2[0].data))
 data2 = np.power(10,(hdulist2[0].data))
-#data2[data2<6.58*10**20/7*2] = np.nan
 data3 = np.power(10,hdulist3[0].data)
-#data3
 data4 = np.power(10,hdulist4[0].data)
-#data3[data3<6.58*10**20/7*2] = np.nan
-
-#y = data1[data1>0].flatten()
 
 #data_m = ((y*2.8*cons.m_p.cgs/(1.9891e+33*u.g))*(u.cm**-2)).to(u.pc**-2)
 ##############################################################
 distances =4.95*1000*u.pc
 import astropy.units as u
 import astropy.constants as cons
-#distance = *1000.*u.parsec
 center_x,center_y = 276,270
 
-#for r in np.range(200):
-#  for j in range(data1.shape[0]):
-#      for i in range(data1.shape[1]):
-#          sum_r = data1[(i-center_x)**2+(j-center_y)**2]
-
 radial_sum_all = radial_all(data1,annulus_width=6,working_mask=None,center_x=center_x,center_y=center_y)
-#pixel_size = 1.5 * u.arcsec
-
-
 mean_NH2= radial_sum_all.mean*u.cm**(-2)
 NH2_std = radial_sum_all.std*u.cm**(-2)
 aperture =  np.pi*(radial_sum_all.r*1.5*distances/206265.)**2
@@ -303,7 +264,6 @@ center_x3, center_y3=235,273
 center_x3, center_y3=214,211
 
 radial_sum_all3 = radial_all(data3,annulus_width=6,working_mask=None,center_x=center_x3,center_y=center_y3)
-#pixel_size = 1.5 * u.arcsec
 distances3 = 5.5*1000*u.pc
 
 mean_NH23= radial_sum_all3.mean*u.cm**(-2)
@@ -315,11 +275,8 @@ mass3=radial_sum_all3.sum*2.8*cons.m_p.cgs/(1.9891e+33*u.g)*(((1.5*distances3/20
 mass_std3 = aperture3*NH2_std3*2.8*cons.m_p.cgs.value/(1.9891e+33*u.g)
 radius3 = radial_sum_all3.r*1.5*distances3/206265#
 
-
-
 center_x4, center_y4=222.9999,217.9999
 radial_sum_all4 = radial_all(data4,annulus_width=6,working_mask=None,center_x=center_x4,center_y=center_y4)
-#pixel_size = 1.5 * u.arcsec
 distances4 = 5.5*1000*u.pc
 
 mean_NH24= radial_sum_all4.mean*u.cm**(-2)
@@ -336,8 +293,6 @@ radius4 = radial_sum_all4.r*1.5*distances4/206265#
 M_plot = np.linspace(100,5.e6,1000)
 
 r = ((cons.G.cgs*M_plot*(1.9891e+33*u.g)*((1*u.Myr.cgs)**2))**(1./3)).to(u.pc)
-
-
 
 ############draw omega r#########################
 r_omega = (2.*cons.G.cgs*M_plot*(1.9891e+33*u.g)*((10*u.km/u.s)**(-2))).to(u.pc)
@@ -431,7 +386,6 @@ axes[0].axvline(x=4.9*60*distances.value/206265.,color='b',linestyle='--')
 #5.0
 axes[0].axvline(x=5.0*60*distances2.value/206265.,color='g',linestyle='--')
 
-#axes[0].plot(radius3[:-3],mass3[:-3],'bo-',markeredgecolor='none',markersize=3.6,label='W43-main')
 #4.88
 axes[0].axvline(x=4.88*60*distances3.value/206265.,color='r',linestyle='--')
 
@@ -475,22 +429,4 @@ axes[1].axvline(x=4.85*60*distances4.value/206265.,color='c',linestyle='--')
 plt.savefig(outpath+'enmass_radius_dif_modi.pdf')
 
 plt.show()
-#minor_b=(minor*3600*6.*(1000)/206265.)*u.pc.cgs#*cons.parsec*100# in cgs unit
-#
-##calculate the mass inside the each clump, A pixel area of the ellipse: A = pi*a*b, total_NH2 column density inside each clump 
-## u mean molecular weight 2.8, mH hydrogen weight mH = cons.m_p 
-## since total_NH2 is in cm-2, so A should be in cm^2, (14.**4.95*(10***3)/206265.)# in pc unit*cons.parsec*100
-##A = math.pow((14.**4.95*(10**3)/206265.)*cons.parsec*100.,2)*volume
-#miu = 2.8
-#A = major_a*minor_b*np.pi
-#mH = cons.m_p.cgs
-#mean_NH2 = mean_NH2*(u.cm**(-2))
-#NH2=mean_NH2
-#
-#M = (mean_NH2*A*miu*mH/((1.9891e+33)*u.g)).decompose()
-#
-#center_x,center_y = 290,305
-#calculate the segmented slopes for each source############
-#calculate the total mass above 7*10e21 threshold
 
-e
