@@ -1,1 +1,1 @@
-# paper_cloud_structures_OB
+# python script for paper cloud structures of galactic OB cluster forming regions
