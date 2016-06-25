@@ -28,8 +28,6 @@ data = hdulist1[0].data
 data=fits.getdata('./W43_main_N_trim.fits')
 
 mask=np.isfinite(data)
-
-
 mask2=erosion(mask, disk(20))
 plt.ion()
 plt.imshow(data/mask2, origin='lower',interpolation='nearest')
@@ -37,6 +35,7 @@ f = data/mask2
 f = np.power(10,f)
 NH2 = f
 #plt.show()
+
 outpath1=r'./W43_main_N_erosion.fits'
 if os.path.exists(outpath1):
     os.remove(outpath1)
@@ -47,8 +46,8 @@ fits.writeto(outpath1,np.log10(f),header=hdulist1[0].header)
 
 params = {'mathtext.default': 'regular' }          
 plt.rcParams.update(params)
-d = Dendrogram.compute(f,min_value=7.0e21,min_delta=8e20/2.35*5.,min_npix=7.0)
 
+d = Dendrogram.compute(f,min_value=7.0e21,min_delta=8e20/2.35*5.,min_npix=7.0)
 ########settings#################################
 metadata = {}
 metadata['data_unit'] = u.Jy
@@ -57,7 +56,6 @@ metadata['beam_major'] =  10.0 * u.arcsec
 metadata['beam_minor'] =  10.0 * u.arcsec
 threshold = 10*8e20/2.35*5.
 ##############calculate dendrogram##################################
-
 d.save_to('W43_main_my_dendrogram_erosion.fits')
 NH2_mean =[]
 for i,leaf in enumerate(d.leaves):
@@ -70,7 +68,6 @@ ax2 = fig.add_subplot(1,3,2)
 
 ax1.imshow(np.log10(f), origin='lower', interpolation='nearest',
           cmap=plt.cm.Blues, vmin=21.7,vmax=23)
-
 count = 0
 p3.plot_tree(ax2, color='black',lw=1.0)
 for i,leaf in enumerate(d.leaves):
@@ -83,9 +80,7 @@ for i,leaf in enumerate(d.leaves):
            p3.plot_tree(ax2, color='orange',structure=leaf)
 ax2.hlines(threshold, *ax2.get_xlim(), color='b', linestyle=':')
 
-mask_ = fits.PrimaryHDU(~mask.astype('short'), hdulist1[0].header)
-
-
+#########plot a zoom-in sub-figure#########################
 axins = zoomed_inset_axes(ax2, 3.5, loc=2) # zoom = 6
 p3.plot_tree(axins, color='black')
 for i,leaf in enumerate(d.leaves):
@@ -110,7 +105,6 @@ plt.yticks(visible=False)
 mark_inset(ax2, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 cat = pp_catalog(d, metadata)
 ###########leaf and brances parameters###########################################
-from astropy import constants as con
 distance = 5500*u.pc
 eff_radius = np.sqrt(cat['area_exact']/np.pi)*distance/206265.*u.pc
 mass = cat['flux']*2.8*con.m_p.cgs/(1.9891e+33*u.g)*(((1.5*distance/206265.).to(u.cm))**2)
@@ -139,8 +133,6 @@ ax3.set_xlabel('Effective Radius [pc]')
 ax3.set_xlim([0.01*3,15])
 ax3.set_ylim([0.1,10**6])
 ax3.set_title('W43-main')
-
-
 ################draw m-r for all structures, modules from Adam#################################
 r = np.linspace(0.001,15,1000)
 
@@ -150,7 +142,6 @@ ax3.fill_between(r,0.001, m_thres, color='0.8', alpha=0.5)
 
 
 ax3.plot(eff_radius_leaf[NH2_mean > threshold], mass_leaf[NH2_mean > threshold],'s',color='red',label='mass',markeredgecolor='none',alpha=0.5)
-
 ax3.plot(eff_radius_leaf[NH2_mean > threshold], mass_corrected_leaf[NH2_mean > threshold],'s',color='purple',label='corrected mass',markeredgecolor='none',alpha=0.5)
 ax3.legend(loc='lower right', fontsize=12.)  
 def dendroplot(axis=ax3, axname1='area_exact', axname2='flux',
@@ -229,9 +220,7 @@ ax3.plot(r,m_loci,'b:')
 ax3.plot(r,m_loci2,'b:')
 
 m_larson = 1e22*np.pi*(r.value*u.pc.to(u.cm))**2*2.8*con.m_p.cgs/(1.9891e+33*u.g)
-
 ax3.plot(r,m_larson,'g--')
-
 ###################fit m-r relations###########################
 ##linear regression###
 
