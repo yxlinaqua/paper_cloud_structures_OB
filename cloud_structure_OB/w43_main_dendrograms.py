@@ -1,85 +1,17 @@
-from skimage.morphology import remove_small_objects,closing
-from skimage.morphology import disk,erosion,opening
-import numpy as np
 import os
-from astropy.io import fits
-from astrodendro import Dendrogram, pp_catalog,ppv_catalog
-from astrodendro.analysis import PPStatistic
-#from astrodendro.scatter import Scatter
-from astropy import units as u
 import numpy as np
 import matplotlib.pyplot as plt
-import astrodendro.pruning as pr
+
+from astropy.io import fits
+from astropy import units as u
+
+from skimage.morphology import disk,erosion,opening
+from astrodendro import Dendrogram, pp_catalog,ppv_catalog
+
 from scipy import linspace, polyval, polyfit, sqrt, stats, randn
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
-
-def dendroplot(axis=ax3, axname1='area_exact', axname2='flux',
-                   axscale1=1.,
-                   axscale2=1.,
-                   leaves_list=[d.leaves],
-                   # r, b, g
-                   color_list=['#CC4444', '#4444CC', '#44CC44'],
-                   highlight_monotonic=True,
-                   marker='s',
-                   marker2=None,
-                   linestyle='-', **kwargs):
-        for leaves, color in zip(leaves_list,color_list):
-            for i,leaf in enumerate(leaves):
-              xax,yax = ([cat[leaf.idx][axname1]*axscale1],
-                           [cat[leaf.idx][axname2]*axscale2])
-                #if axname1 in ('v_rms','reff'):
-                #    xax *= gcorfactor[leaf.idx]
-                #if axname2 in ('v_rms','reff'):
-                #    yax *= gcorfactor[leaf.idx]
-              if not (NH2_mean[i] < 10*8.0e20/2.35*5. ):
-
-               axis.plot(xax, yax, marker, color=color, markeredgecolor='none', alpha=0.5)
-               obj = leaf.parent
-               if obj is not None:
-                if obj.parent is not None: 
-                 while obj.parent:
-                    xax.append(cat[obj.idx][axname1]*axscale1)
-                    yax.append(cat[obj.idx][axname2]*axscale2)
-                    obj = obj.parent
-                 if np.any(np.isnan(yax)):
-                    ok = ~np.isnan(yax)
-                    axis.plot(np.array(xax)[ok], np.array(yax)[ok], alpha=0.5,
-                #label=leaf.idx, 
-                              color='b', zorder=5,
-                              linestyle=linestyle, marker=marker2, **kwargs)
-                 else:
-                    axis.plot(xax, yax, alpha=0.1, 
-                    #label=leaf.idx, 
-                    color=color,
-                              zorder=5, linestyle=linestyle, marker=marker2,
-                              **kwargs)
-                 if highlight_monotonic:
-                    signs = np.sign(np.diff(yax))
-                    if np.all(signs==1) or np.all(signs==-1):
-                        axis.plot(xax, yax, alpha=0.1, linewidth=5, zorder=0, color='g')
-                #else: 
-                #  while obj.ancestor:
-                #    xax.append(cat[obj.idx][axname1]*axscale1)
-                #    yax.append(cat[obj.idx][axname2]*axscale2)
-                #    obj = obj.parent
-                #  if np.any(np.isnan(yax)):
-                #    ok = ~np.isnan(yax)
-                #    axis.plot(np.array(xax)[ok], np.array(yax)[ok], alpha=0.5,
-                ##label=leaf.idx, 
-                #              color='b', zorder=5,
-                #              linestyle=linestyle, marker=marker2, **kwargs)
-                #  else:
-                #    axis.plot(xax, yax, alpha=0.1, 
-                #    #label=leaf.idx, 
-                #    color=color,
-                #              zorder=5, linestyle=linestyle, marker=marker2,
-                #              **kwargs)
-                #  if highlight_monotonic:
-                #    signs = np.sign(np.diff(yax))
-                #    if np.all(signs==1) or np.all(signs==-1):
-                #        axis.plot(xax, yax, alpha=0.1, linewidth=5, zorder=0, color='g')
 ####################################################################  
 dirpath = r'./'
 
@@ -123,6 +55,7 @@ metadata['data_unit'] = u.Jy
 metadata['spatial_scale'] =  1.5 * u.arcsec
 metadata['beam_major'] =  10.0 * u.arcsec
 metadata['beam_minor'] =  10.0 * u.arcsec
+threshold = 10*8e20/2.35*5.
 ##############calculate dendrogram##################################
 
 d.save_to('W43_main_my_dendrogram_erosion.fits')
@@ -141,14 +74,14 @@ ax1.imshow(np.log10(f), origin='lower', interpolation='nearest',
 count = 0
 p3.plot_tree(ax2, color='black',lw=1.0)
 for i,leaf in enumerate(d.leaves):
-        if not (NH2_mean[i] < (10.*8e20/2.35*5.) ):#and eff_radius[i]**2 > 0.15):# and not(NH2_mean[i] < 2.1e22 and eff_radius[i]**2 <0.08):
+        if not (NH2_mean[i] < threshold ):#and eff_radius[i]**2 > 0.15):# and not(NH2_mean[i] < 2.1e22 and eff_radius[i]**2 <0.08):
            p3.plot_contour(ax1, structure=leaf, lw=3, colors='red')
            p3.plot_tree(ax2, color='red',structure=leaf)
            count = count+1
         else:
            p3.plot_contour(ax1, structure=leaf, lw=3, colors='orange')
            p3.plot_tree(ax2, color='orange',structure=leaf)
-ax2.hlines(10*8e20/2.35*5., *ax2.get_xlim(), color='b', linestyle=':')
+ax2.hlines(threshold, *ax2.get_xlim(), color='b', linestyle=':')
 
 mask_ = fits.PrimaryHDU(~mask.astype('short'), hdulist1[0].header)
 
@@ -156,7 +89,7 @@ mask_ = fits.PrimaryHDU(~mask.astype('short'), hdulist1[0].header)
 axins = zoomed_inset_axes(ax2, 3.5, loc=2) # zoom = 6
 p3.plot_tree(axins, color='black')
 for i,leaf in enumerate(d.leaves):
-        if not (NH2_mean[i] < 10*8e20/2.35*5. ):
+        if not (NH2_mean[i] < threshold ):
            p3.plot_tree(axins, color='red',structure=leaf)
         else:
            p3.plot_tree(axins, color='orange',structure=leaf)
@@ -216,10 +149,76 @@ ax3.set_title('W43-main')
 ax3.fill_between(r,0.001, m_thres, color='0.8', alpha=0.5)
 
 
-ax3.plot(eff_radius_leaf[NH2_mean > 10*8e20/2.35*5. ], mass_leaf[NH2_mean > 10*8e20/2.35*5. ],'s',color='red',label='mass',markeredgecolor='none',alpha=0.5) 
+ax3.plot(eff_radius_leaf[NH2_mean > threshold], mass_leaf[NH2_mean > threshold],'s',color='red',label='mass',markeredgecolor='none',alpha=0.5)
 
-ax3.plot(eff_radius_leaf[NH2_mean > 10*8e20/2.35*5. ], mass_corrected_leaf[NH2_mean > 10*8e20/2.35*5. ],'s',color='purple',label='corrected mass',markeredgecolor='none',alpha=0.5) 
-ax3.legend(loc='lower right', fontsize=12.)                       
+ax3.plot(eff_radius_leaf[NH2_mean > threshold], mass_corrected_leaf[NH2_mean > threshold],'s',color='purple',label='corrected mass',markeredgecolor='none',alpha=0.5)
+ax3.legend(loc='lower right', fontsize=12.)  
+def dendroplot(axis=ax3, axname1='area_exact', axname2='flux',
+                   axscale1=1.,
+                   axscale2=1.,
+                   leaves_list=[d.leaves],
+                   threshold=None,
+                   # r, b, g
+                   color_list=['#CC4444', '#4444CC', '#44CC44'],
+                   highlight_monotonic=True,
+                   marker='s',
+                   marker2=None,
+                   linestyle='-', **kwargs):
+        for leaves, color in zip(leaves_list,color_list):
+            for i,leaf in enumerate(leaves):
+                  xax,yax = ([cat[leaf.idx][axname1]*axscale1],
+                             [cat[leaf.idx][axname2]*axscale2])
+                  #if axname1 in ('v_rms','reff'):
+                  #    xax *= gcorfactor[leaf.idx]
+                  #if axname2 in ('v_rms','reff'):
+                  #    yax *= gcorfactor[leaf.idx]
+                  if not (NH2_mean[i] < threshold ):
+                      axis.plot(xax, yax, marker, color=color, markeredgecolor='none', alpha=0.5)
+                      obj = leaf.parent
+                      if obj is not None:
+                          if obj.parent is not None:
+                              while obj.parent:
+                                  xax.append(cat[obj.idx][axname1]*axscale1)
+                                  yax.append(cat[obj.idx][axname2]*axscale2)
+                                  obj = obj.parent
+                              if np.any(np.isnan(yax)):
+                                  ok = ~np.isnan(yax)
+                                  axis.plot(np.array(xax)[ok], np.array(yax)[ok], alpha=0.5,
+                                            #label=leaf.idx,
+                                            color='b', zorder=5,
+                                            linestyle=linestyle, marker=marker2, **kwargs)
+                              else:
+                                  axis.plot(xax, yax, alpha=0.1,
+                                            #label=leaf.idx,
+                                            color=color,
+                                            zorder=5, linestyle=linestyle, marker=marker2,
+                                            **kwargs)
+                              if highlight_monotonic:
+                                  signs = np.sign(np.diff(yax))
+                                  if np.all(signs==1) or np.all(signs==-1):
+                                      axis.plot(xax, yax, alpha=0.1, linewidth=5, zorder=0, color='g')
+                #else: 
+                #  while obj.ancestor:
+                #    xax.append(cat[obj.idx][axname1]*axscale1)
+                #    yax.append(cat[obj.idx][axname2]*axscale2)
+                #    obj = obj.parent
+                #  if np.any(np.isnan(yax)):
+                #    ok = ~np.isnan(yax)
+                #    axis.plot(np.array(xax)[ok], np.array(yax)[ok], alpha=0.5,
+                ##label=leaf.idx, 
+                #              color='b', zorder=5,
+                #              linestyle=linestyle, marker=marker2, **kwargs)
+                #  else:
+                #    axis.plot(xax, yax, alpha=0.1, 
+                #    #label=leaf.idx, 
+                #    color=color,
+                #              zorder=5, linestyle=linestyle, marker=marker2,
+                #              **kwargs)
+                #  if highlight_monotonic:
+                #    signs = np.sign(np.diff(yax))
+                #    if np.all(signs==1) or np.all(signs==-1):
+                #        axis.plot(xax, yax, alpha=0.1, linewidth=5, zorder=0, color='g')
+
 dendroplot()
 
 ##############reference lines for m-r relations######################
@@ -236,7 +235,7 @@ ax3.plot(r,m_larson,'g--')
 ###################fit m-r relations###########################
 ##linear regression###
 
-(ar,br)=polyfit(np.log10(eff_radius_leaf[NH2_mean > 10*8.0e20/2.35*5. ]),np.log10(mass_leaf[NH2_mean > 10*8.0e20/2.35*5. ]),1)
+(ar,br)=polyfit(np.log10(eff_radius_leaf[NH2_mean > 10*8.0e20/2.35*5. ]),np.log10(mass_leaf[NH2_mean > threshold ]),1)
 xr=polyval([ar,br],np.log10(r.value))
 
 ax3.plot(r,np.power(10,xr),'r--')
@@ -250,8 +249,3 @@ print ar1,ar,br1,br
 ##################save the plot########################################
 fig.savefig(outpath+'W43_main_dendro_mass_radius1_erosion_prune.pdf'
             ,bbox_inches='tight')
-
-
-
-
-
