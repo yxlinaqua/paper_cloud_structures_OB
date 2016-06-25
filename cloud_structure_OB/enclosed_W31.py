@@ -5,33 +5,17 @@
 
 
 from astropy import units as u
+import astropy.constants as cons
+
 from astropy.io import fits
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 from scipy.optimize import curve_fit
-import numpy as np
-import matplotlib.pyplot as plt
 
 import math
-
-import pyparsing
-import pyregion
-import pyfits
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-import sep
 import os
 from astropy.table import Table
-import numpy as np
-import aplpy
-import os
-import powerlaw
-import matplotlib.pyplot as plt
-from astropy.io import fits
 from astropy import wcs
-from astropy import units as u
-import astropy.constants as cons
 import matplotlib.text as text
 params = {'mathtext.default': 'regular' }   
 def radial_all(data,annulus_width=1,center_x=None,center_y=None,working_mask=None,x=None,y=None,rmax=None):
@@ -72,10 +56,7 @@ def radial_all(data,annulus_width=1,center_x=None,center_y=None,working_mask=Non
 # 2005/12/15 Switched order of outputs (IJC)
 # 2005/12/12 IJC: Removed decifact, changed name, wrote comments.
 # 2005/11/04 by Ian Crossfield at the Jet Propulsion Laboratory
- 
-    import numpy as ny
-
-    class radialDat:
+   class radialDat:
         """Empty object container.
         """
         def __init__(self): 
@@ -165,8 +146,6 @@ def radial_all(data,annulus_width=1,center_x=None,center_y=None,working_mask=Non
     
     return radialdata
     
-import numpy as np
-
 def enclosed_stastic(image, center=None):
     """
     Calculate the azimuthally averaged radial profile.
@@ -208,7 +187,6 @@ def enclosed_stastic(image, center=None):
 
 ####################################################################  
 dirpath = r'./'
-
 outpath = r'./'
 ############################################################################
 filepath1= dirpath+r'G102_N_trim_cutoff.fits'
@@ -222,14 +200,10 @@ hdulist2 = fits.open(filepath2)
 hdulist3 = fits.open(filepath3)
 hdulist4 = fits.open(filepath4)
 ############################################################################# 
-#datarg=np.power(10,hdulist1[0].data)
-
 data1 = np.power(10,(hdulist1[0].data))
 data2 = np.power(10,(hdulist2[0].data))
 data3 = np.power(10,hdulist3[0].data)
 data4 = np.power(10,hdulist4[0].data)
-
-#data_m = ((y*2.8*cons.m_p.cgs/(1.9891e+33*u.g))*(u.cm**-2)).to(u.pc**-2)
 ##############################################################
 distances =4.95*1000*u.pc
 import astropy.units as u
@@ -248,7 +222,6 @@ radius = radial_sum_all.r*1.5*distances/206265#
 
 center_x2, center_y2=272,245
 radial_sum_all2 = radial_all(data2,annulus_width=6,working_mask=None,center_x=center_x2,center_y=center_y2)
-#pixel_size = 1.5 * u.arcsec
 distances2 = 3.22*1000*u.pc
 
 mean_NH22= radial_sum_all2.mean*u.cm**(-2)
@@ -330,11 +303,7 @@ plt.plot(radius4[1:-3],mass4[1:-3],'go-',markeredgecolor='none',markersize=3.6,l
 plt.axvline(x=4.85*60*distances4.value/206265.,color='c',linestyle='--')
 plt.legend(loc='upper left',fontsize=15)
 plt.show()
-#plt.savefig('/Users/yuxinlin/texdoc/enmass_radius_dif.pdf')
-#plt.savefig(outpath+'W31_mass_radius.eps')
-#major_a=(major*3600*6.*(1000)/206265.)*u.pc.cgs
-##*cons.parsec*100# in cgs unit
-#
+
 from scipy import interpolate
 plt.clf()
 radius = radius.value
@@ -391,9 +360,7 @@ axes[0].axvline(x=4.88*60*distances3.value/206265.,color='r',linestyle='--')
 
 #4.85
 axes[0].axvline(x=4.85*60*distances4.value/206265.,color='c',linestyle='--')
-
 axes[0].set_title(r'Mass-Radius')
-
 axes[0].set_ylabel('Mass [$M_{\odot}$]')
 axes[0].legend(loc = 'best',fontsize=10)
 
