@@ -44,8 +44,6 @@ def radial_data(data,annulus_width=1,working_mask=None,x=None,y=None,rmax=None):
 # 2005/12/15 Switched order of outputs (IJC)
 # 2005/12/12 IJC: Removed decifact, changed name, wrote comments.
 # 2005/11/04 by Ian Crossfield at the Jet Propulsion Laboratory
-    import numpy as ny
-
     class radialDat:
         """Empty object container.
         """
@@ -97,7 +95,6 @@ def radial_data(data,annulus_width=1,working_mask=None,x=None,y=None,rmax=None):
     #---------------------
     # Loop through the bins
     #---------------------
-    import numpy as numpy
     for irad in range(nrad): #= 1:numel(radial)
       minrad = irad*dr
       maxrad = minrad + dr
@@ -124,16 +121,13 @@ def radial_data(data,annulus_width=1,working_mask=None,x=None,y=None,rmax=None):
 dirpath = r'./'
 outpath = r'./'
 ############################################################################
-
 filepath1= dirpath+r'G106_N_slp_cutoff.fits'
-
 hdulist1 = fits.open(filepath1)
 ############################################################################# 
 datarg=np.power(10,hdulist1[0].data)
 data_fluc = datarg#*1.0e21
 mean = np.nanmean(datarg)#*1.0e21
 
-            
 mask_array = np.ones_like(data_fluc)
 for i in range(0,data_fluc.shape[0]):
   for j in range(0,data_fluc.shape[1]):
@@ -147,7 +141,6 @@ space_ac_test2 = signal.fftconvolve(data_fluc, data_fluc[::-1,::-1], mode='full'
 space_ac_test2 /= np.nanmax(space_ac_test2)#normalization 1
 space_ac_test1 = signal.fftconvolve(mask_array, mask_array[::-1,::-1], mode='full')
 space_ac_test1 = np.ceil(space_ac_test1)
-
 #########three estimators see more in Kleiner\& Dickman 1985
 #unbiased
 norm_ac = space_ac_test2/space_ac_test1*np.count_nonzero(data_fluc)#/space_ac_test3 
