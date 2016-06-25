@@ -12,21 +12,21 @@ params = {'mathtext.default': 'regular' }
 plt.rcParams.update(params)
 ##seg linear fits###################
 def seg_model_strengths_2(params, lags):
- (m0,m1,b0,p1) = params
- b1 = m0*p1+b0-m1*p1
- #b0 = 1.5*m0
- num_data = len(lags)
- model_strengths = np.empty(num_data)
- idx = 0
- while idx < num_data:
-         lag = lags[idx]
-         if lag < p1:
-            model_strength = m0*lag+b0
-         elif p1<= lag:
-             model_strength = m1*lag+b1
-         model_strengths[idx] = model_strength
-         idx += 1
- return model_strengths
+        (m0,m1,b0,p1) = params
+        b1 = m0*p1+b0-m1*p1
+       #b0 = 1.5*m0
+        num_data = len(lags)
+        model_strengths = np.empty(num_data)
+        idx = 0
+        while idx < num_data:
+            lag = lags[idx]
+            if lag < p1:
+                model_strength = m0*lag+b0
+            elif p1<= lag:
+                model_strength = m1*lag+b1
+            model_strengths[idx] = model_strength
+            idx += 1
+    return model_strengths
  
 def residual2(pars, x, data=None):
     vals = pars.valuesdict()
@@ -93,7 +93,7 @@ for i in range(len(test[1])):
 #ro2_fit = powerlaw_modi.Fit((y2),xmin=g_bpl.x_break.value)
 #MyPL2 = plfit_modi_2.plfit(y2,xmin=g_bpl.x_break.value)
 #test1 = MyPL2.plotpdf(normed=False,histcolor='none',plcolor='none')
-#s1 = []     
+#s1 = []
 #for i in range(len(test1[1])):
   #if i < len(test1[1])-1:
    #  s1 = np.append(s1,[test1[1][i+1]-test1[1][i]])
@@ -127,7 +127,7 @@ MyPL2 = plfit_modi_2.plfit(y2,xmin=np.exp(out1.params['p1'].value))
 
 test1 = MyPL2.plotpdf(normed=False,histcolor='none',plcolor='none')
 
-s1 = []     
+s1 = []
 for i in range(len(test1[1])):
   if i < len(test1[1])-1:
      s1 = np.append(s1,[test1[1][i+1]-test1[1][i]])
