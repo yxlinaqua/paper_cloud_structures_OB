@@ -1,25 +1,10 @@
 #density distribution and log-normal fitting
-from astropy import units as u
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
-from scipy.optimize import curve_fit
 
-import math
-import os
-from astropy.table import Table
-import aplpy
-import powerlaw
-from astropy import wcs
-from astropy import units as u
-import matplotlib.text as text
-
-from lmfit.models import LinearModel
 from lmfit import Parameters, minimize, fit_report
 
-from astropy.modeling.powerlaws import BrokenPowerLaw1D
-from astropy.modeling.fitting import LevMarLSQFitter
 import powerlaw_modi
 import plfit_modi_2
 
@@ -55,7 +40,6 @@ def residual2(pars, x, data=None):
     return (model - data)
 ####################################################################  
 dirpath = r'./'
-
 outpath = r'./'
 ############################################################################
 filepath1= dirpath+r'W43_main_N_trim.fits'
@@ -63,26 +47,23 @@ hdulist1 = fits.open(filepath1)
 ############################################################################# 
 data1 = np.power(10,(hdulist1[0].data))
 cutoff = np.power(10.,22.18 )
+
 #subtract the contamination
-y1 = np.log10(data1[data1>cutoff].flatten())
 y2 = (data1[np.where(np.logical_not(np.isnan(data1)))].flatten()-10**21.16)
 y2 = y2[y2>(cutoff-10**21.16)]
 
 meanvalue = np.mean(y2)
 y2 = y2/np.mean(y2)
 
-fit_x = (np.linspace(1e21, 1e24, 2000))#/np.mean(data1[data1>cutoff].flatten()))
+fit_x = (np.linspace(1e21, 1e24, 2000))
+
 #pl fit from minimum
 ro_fit = powerlaw_modi.Fit((y2),xmin=(y2.min()),linear_bins=True)
+
 #optimal pl fit
 ro1_fit = powerlaw_modi.Fit((y2))
 bin_edges1,probability2 = ro1_fit.pdf()
 x_set = np.log(ro1_fit.power_law.xmin)
-
-mod = LinearModel()
-pars =  mod.make_params(intercept=3., slope=-2.0)
-pars['intercept'].set(value=3.0, vary=True, expr='')
-pars['slope'].set(value=-1*ro1_fit.power_law.alpha, vary=True, expr='')
 
 ########################draw the plfit results with xmin derived from powerlaw-package###################
 MyPL0 = plfit_modi_2.plfit(y2,xmin=y2.min())
@@ -100,23 +81,22 @@ for i in range(len(test[1])):
   if i < len(test[1])-1:
      s = np.append(s,[test[1][i+1]-test[1][i]])
 ################fit the broken powerlaw###############
+#(test[2]),test[3]/np.sum(test[0][1:]*s)
+#np.log(test[1]),(test[0]/np.sum(test[0][1:]*s))
 
-(test[2]),test[3]/np.sum(test[0][1:]*s)
-np.log(test[1]),(test[0]/np.sum(test[0][1:]*s))
-g_init = BrokenPowerLaw1D(amplitude=0.5,x_break=np.exp(2.),alpha_1=2.7,alpha_2=2.1)
-fitter = LevMarLSQFitter()
-bins_n=test[2]
+#g_init = BrokenPowerLaw1D(amplitude=0.5,x_break=np.exp(2.),alpha_1=2.7,alpha_2=2.1)
+#fitter = LevMarLSQFitter()
+#bins_n=test[2]
 #t1,t2,t3=plt.hist(y[y>400], bins_n, facecolor='none',edgecolor = "grey", alpha=0.5,normed=1,histtype=u'stepfilled') 
-g_bpl = fitter(g_init,test[1], (test[0]/np.sum(test[0][1:]*s)))
-print g_bpl.amplitude.value,g_bpl.x_break.value,g_bpl.alpha_1.value,g_bpl.alpha_2.value
-x_set1 = np.log(g_bpl.x_break.value)
-ro2_fit = powerlaw_modi.Fit((y2),xmin=g_bpl.x_break.value)
-MyPL2 = plfit_modi_2.plfit(y2,xmin=g_bpl.x_break.value)
-test1 = MyPL2.plotpdf(normed=False,histcolor='none',plcolor='none')
-s1 = []     
-for i in range(len(test1[1])):
-  if i < len(test1[1])-1:
-     s1 = np.append(s1,[test1[1][i+1]-test1[1][i]])
+#print g_bpl.amplitude.value,g_bpl.x_break.value,g_bpl.alpha_1.value,g_bpl.alpha_2.value
+#x_set1 = np.log(g_bpl.x_break.value)
+#ro2_fit = powerlaw_modi.Fit((y2),xmin=g_bpl.x_break.value)
+#MyPL2 = plfit_modi_2.plfit(y2,xmin=g_bpl.x_break.value)
+#test1 = MyPL2.plotpdf(normed=False,histcolor='none',plcolor='none')
+#s1 = []     
+#for i in range(len(test1[1])):
+  #if i < len(test1[1])-1:
+   #  s1 = np.append(s1,[test1[1][i+1]-test1[1][i]])
      
 #x_lower=np.linspace(np.min(y),g_bpl.x_break.value,200)
 #x_higher=np.linspace(g_bpl.x_break.value,np.max(bins[1:]),200)
@@ -146,8 +126,6 @@ ro2_fit = powerlaw_modi.Fit((y2),xmin=np.exp(out1.params['p1'].value))
 MyPL2 = plfit_modi_2.plfit(y2,xmin=np.exp(out1.params['p1'].value))
 
 test1 = MyPL2.plotpdf(normed=False,histcolor='none',plcolor='none')
-
-
 
 s1 = []     
 for i in range(len(test1[1])):
@@ -221,4 +199,3 @@ plt.show()
 print ro_fit.lognormal.mu, ro_fit.lognormal.sigma,ro1_fit.power_law.alpha,ro2_fit.power_law.alpha,meanvalue,x_set,x_set1
 
 plt.savefig(outpath+'W43-main_pdf_2PL_xmin_err.pdf')
-
