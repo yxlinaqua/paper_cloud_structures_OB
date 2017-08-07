@@ -103,7 +103,7 @@ def radial_data(data, annulus_width=1, working_mask=None, x=None, y=None, rmax=N
     # Loop through the bins
     # ---------------------
     for irad in range(nrad):  # = 1:numel(radial)
-        minrad = irad * dr
+        minrad = 0. #irad * dr
         maxrad = minrad + dr
         thisindex = (r >= minrad) * (r < maxrad) * working_mask
         if not thisindex.ravel().any():
